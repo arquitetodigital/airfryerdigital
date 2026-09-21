@@ -22,7 +22,12 @@ fbq('track', 'ViewContent', {
   value: 9.90
 });
 </script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+       src="https://www.facebook.com/tr?id=4415659575362588&ev=PageView&noscript=1"/>
+</noscript>
 <!-- End Meta Pixel Code -->
+
 
 <title>365 Receitas para Airfryer - Guia Completo de Receitas Rápidas e Saudáveis</title>
 <meta name="description" content="365 receitas rápidas, saudáveis e testadas para preparar na Airfryer. Guia digital completo com 5 bónus e garantia de 7 dias.">
@@ -132,6 +137,7 @@ fbq('track', 'ViewContent', {
   }
 })();
 
+<script>
 // Tracking do checkout robusto e otimizado para Meta Ads e Hotmart
 (function () {
   function getCookie(name) {
@@ -144,7 +150,23 @@ fbq('track', 'ViewContent', {
   document.querySelectorAll('[data-checkout]').forEach(function (button) {
     button.addEventListener('click', function (e) {
       e.preventDefault();
+
+      // 1. Dispara o InitiateCheckout imediatamente no início do clique
+      if (typeof window.fbq === 'function') {
+        try {
+          window.fbq('track', 'InitiateCheckout', {
+            content_name: '365 Receitas para Airfryer',
+            content_type: 'product',
+            currency: 'EUR',
+            value: 9.90
+          });
+        } catch (err) {
+          console.warn('Erro ao disparar InitiateCheckout:', err);
+        }
+      }
+
       var navigated = false;
+      var finalUrl = checkoutBase;
 
       function goToCheckout() {
         if (!navigated) {
@@ -153,18 +175,15 @@ fbq('track', 'ViewContent', {
         }
       }
 
-      var finalUrl = checkoutBase;
-
+      // 2. Monta os parâmetros e cookies da Hotmart de forma segura
       try {
         var target = new URL(checkoutBase);
         var current = new URLSearchParams(window.location.search);
 
-        // Repassa UTMs e parâmetros da URL
         current.forEach(function (value, key) {
           target.searchParams.set(key, value);
         });
 
-        // Configura src e sck para rastreamento interno da Hotmart
         var utmSource = current.get('utm_source') || current.get('source');
         var utmCampaign = current.get('utm_campaign');
         if (utmSource) {
@@ -173,39 +192,26 @@ fbq('track', 'ViewContent', {
           target.searchParams.set('sck', srcValue);
         }
 
-        // Repassa fbclid para garantir atribuição
         var fbclid = current.get('fbclid');
         if (fbclid) target.searchParams.set('fbclid', fbclid);
 
-        // Repassa cookies do Pixel para Hotmart
         var fbp = getCookie('_fbp');
         var fbc = getCookie('_fbc');
         if (fbp) target.searchParams.set('fbp', fbp);
         if (fbc) target.searchParams.set('fbc', fbc);
 
         finalUrl = target.toString();
-
-        // Dispara InitiateCheckout no Pixel
-        if (typeof window.fbq === 'function') {
-          window.fbq('track', 'InitiateCheckout', {
-            content_name: '365 Receitas para Airfryer',
-            content_type: 'product',
-            currency: 'EUR',
-            value: 9.90
-          });
-        }
       } catch (err) {
-        console.warn('Erro ao processar tracking:', err);
+        console.warn('Erro ao processar URL Hotmart:', err);
       }
 
-      // Delay de 450ms: tempo necessário para conexões móveis (4G/3G)
-      // concluírem o envio do evento antes do descarregamento da página
-      setTimeout(goToCheckout, 450);
+      // 800ms garante que a requisição de rede do Pixel saia antes do redirecionamento
+      setTimeout(goToCheckout, 800);
     });
   });
 })();
-
 </script>
+
 
 </body>
 
